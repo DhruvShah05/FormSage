@@ -1,0 +1,134 @@
+(async function () {
+  function delay(ms) {
+    return new Promise((res) => setTimeout(res, ms));
+  }
+
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, "") // remove punctuation/symbols
+      .replace(/\s+/g, " ")      // collapse whitespace
+      .trim();
+  }
+
+  const button = document.createElement("button");
+  button.textContent = "✨ Auto Answer";
+  button.style.position = "fixed";
+  button.style.bottom = "20px";
+  button.style.right = "20px";
+  button.style.zIndex = "9999";
+  button.style.padding = "10px 15px";
+  button.style.border = "none";
+  button.style.borderRadius = "8px";
+  button.style.background = "linear-gradient(45deg, #ff6b6b, #ee5a24)";
+  button.style.color = "white";
+  button.style.fontWeight = "bold";
+  button.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+  button.style.cursor = "pointer";
+
+  document.body.appendChild(button);
+
+  button.onclick = async () => {
+    const questions = Array.from(document.querySelectorAll(".Qr7Oae"));
+    const quiz = [];
+
+    const questionBlocks = []; // stores optionBlocks per question
+
+    for (const q of questions) {
+      const questionText = q.querySelector(".M7eMe")?.innerText.trim();
+      const optionBlocks = Array.from(q.querySelectorAll("div.bzfPab.wFGF8"));
+
+      const options = optionBlocks
+        .map(block => {
+          const span = block.querySelector("span.aDTYNe.snByac.OvPDhc.OIC90c");
+          return span?.innerText.trim() || "";
+        })
+        .filter(opt => opt.length > 0);
+
+      if (!questionText || options.length === 0) {
+        console.warn("⚠️ Skipping question due to missing content:", questionText, options);
+        continue;
+      }
+
+      quiz.push({ question: questionText, options });
+      questionBlocks.push(optionBlocks);
+    }
+
+    console.log("🧠 Sending full quiz to Gemini:", quiz);
+
+    // ✅ Get the stored API key
+    chrome.storage.local.get("gemini_api_key", async (data) => {
+      const apiKey = data.gemini_api_key;
+      if (!apiKey) {
+        alert("⚠️ Gemini API key not set. Click extension icon to set it.");
+        return;
+      }
+
+      let answers = [];
+      try {
+        const res = await fetch("http://127.0.0.1:5000/solve_all", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": apiKey
+          },
+          body: JSON.stringify({ quiz })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error("❌ Server error:", res.status, errText);
+          return;
+        }
+
+        const data = await res.json();
+        answers = data.answers || [];
+        console.log("🤖 Gemini Answers:", answers);
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+        return;
+      }
+
+      // Now map answers back to each question
+      for (let i = 0; i < answers.length; i++) {
+        const answerText = normalize(answers[i]);
+        const optionBlocks = questionBlocks[i];
+
+        let clicked = false;
+        for (const block of optionBlocks) {
+          const span = block.querySelector("span.aDTYNe.snByac.OvPDhc.OIC90c");
+          const optionText = span?.innerText.trim() || "";
+          const normalizedOption = normalize(optionText);
+
+          console.log(`🧪 Q${i + 1}: Matching "${normalizedOption}" with "${answerText}"`);
+
+          if (normalizedOption.includes(answerText)) {
+            const input = block.querySelector("input[type='radio']");
+            if (input) {
+              input.scrollIntoView({ behavior: "smooth", block: "center" });
+              await delay(200);
+              input.click();
+              input.dispatchEvent(new Event("change", { bubbles: true }));
+              console.log(`🎯 Selected via input: ${optionText}`);
+            } else {
+              block.scrollIntoView({ behavior: "smooth", block: "center" });
+              await delay(200);
+              block.click();
+              console.log(`🎯 Selected via block: ${optionText}`);
+            }
+            clicked = true;
+            break;
+          }
+        }
+
+        if (!clicked) {
+          console.warn(`⚠️ No match found for Q${i + 1}:`, answers[i]);
+        }
+
+        await delay(500); // Wait before next question
+      }
+
+      button.textContent = "✅ Answered!";
+    });
+  };
+})();

@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "QuizGemini",
+  "version": "1.0.0",
+  "description": "Auto-answer Google Forms quizzes using Gemini AI",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "https://docs.google.com/forms/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/forms/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_title": "QuizGemini",
+    "default_popup": "popup.html"
+  }
+}

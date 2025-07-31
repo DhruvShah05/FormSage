@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QuizGemini</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 15px;
+      width: 250px;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    h3 {
+      margin: 0 0 15px 0;
+      text-align: center;
+      font-size: 18px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    button, input {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    input {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.1);
+      font-size: 12px;
+      text-align: center;
+      min-height: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .footer {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <h3>🚀 QuizGemini</h3>
+
+  <input id="keyInput" type="text" placeholder="Paste your Gemini API key" />
+  <button id="saveBtn">Save API Key</button>
+  <button id="clearBtn">Clear API Key</button>
+
+  <button id="answerBtn">Auto Answer Quiz</button>
+
+  <div id="status">Ready to use!</div>
+  <div class="footer">Powered by Gemini AI</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
