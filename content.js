@@ -66,7 +66,7 @@
 
       let answers = [];
       try {
-        const res = await fetch("http://127.0.0.1:5000/solve_all", {
+        const res = await fetch("https://formsage-bfemfzcwegg0a2bn.malaysiawest-01.azurewebsites.net/solve_all", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
