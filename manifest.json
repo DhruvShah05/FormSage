@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "QuizGemini",
-  "version": "1.0.0",
+  "name": "FormSage",
+  "version": "2.0.0",
   "description": "Auto-answer Google Forms quizzes using Gemini AI",
   "permissions": [
     "scripting",
@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "http://localhost:5000/*",
-    "https://docs.google.com/forms/*"
+    "https://docs.google.com/forms/*",
+    "https://formsage-bfemfzcwegg0a2bn.malaysiawest-01.azurewebsites.net/*"
   ],
   "content_scripts": [
     {
@@ -20,7 +21,13 @@
     }
   ],
   "action": {
-    "default_title": "QuizGemini",
-    "default_popup": "popup.html"
+    "default_title": "FormSage - Auto Answer Google Forms",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "1024": "icons/icon.png"
+    }
+  },
+  "icons": {
+    "1024": "icons/icon.png"
   }
 }
