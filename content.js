@@ -12,7 +12,7 @@
   }
 
   const button = document.createElement("button");
-  button.textContent = "✨ Auto Answer";
+  button.textContent = "Auto Answer";
   button.style.position = "fixed";
   button.style.bottom = "20px";
   button.style.right = "20px";
@@ -28,7 +28,15 @@
 
   document.body.appendChild(button);
 
-  button.onclick = async () => {
+  // Check saved state and apply it
+  chrome.storage.local.get("buttonEnabled", (data) => {
+    if (data.buttonEnabled === false) {
+      button.style.display = "none";
+    }
+  });
+
+  // Auto answer function
+  async function performAutoAnswer() {
     const questions = Array.from(document.querySelectorAll(".Qr7Oae"));
     const quiz = [];
 
@@ -78,6 +86,10 @@
         if (!res.ok) {
           const errText = await res.text();
           console.error("❌ Server error:", res.status, errText);
+          button.textContent = "❌ Error!";
+          setTimeout(() => {
+            button.textContent = "Auto Answer";
+          }, 2000);
           return;
         }
 
@@ -86,6 +98,10 @@
         console.log("🤖 Gemini Answers:", answers);
       } catch (err) {
         console.error("❌ Fetch error:", err);
+        button.textContent = "❌ Network Error!";
+        setTimeout(() => {
+          button.textContent = "Auto Answer";
+        }, 2000);
         return;
       }
 
@@ -129,6 +145,40 @@
       }
 
       button.textContent = "✅ Answered!";
+      setTimeout(() => {
+        button.textContent = "Auto Answer";
+      }, 3000);
     });
+  }
+
+  // Listen for messages from popup to show/hide button or trigger auto answer
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "hideButton") {
+      button.style.display = "none";
+      sendResponse({ success: true });
+    } else if (message.action === "showButton") {
+      button.style.display = "block";
+      sendResponse({ success: true });
+    } else if (message.action === "triggerAutoAnswer") {
+      button.textContent = "🔄 Processing...";
+      performAutoAnswer().then(() => {
+        sendResponse({ success: true });
+      }).catch((error) => {
+        console.error("Error in auto answer:", error);
+        button.textContent = "❌ Error!";
+        setTimeout(() => {
+          button.textContent = "Auto Answer";
+        }, 2000);
+        sendResponse({ success: false, error: error.message });
+      });
+      return true; // Keep message channel open for async response
+    }
+    return true; // Keep message channel open for async response
+  });
+
+  // Button click handler
+  button.onclick = async () => {
+    button.textContent = "🔄 Processing...";
+    await performAutoAnswer();
   };
 })();
